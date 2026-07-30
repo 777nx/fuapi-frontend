@@ -71,7 +71,7 @@ Umi Max (`@umijs/max`) is the meta-framework. It wraps the build pipeline and pr
 
 - **Auto-generated services** in `src/services/ant-design-pro/` — do NOT edit manually; regenerate with `npm run openapi`
 - **Per-page services**: many pages have co-located `service.ts` files
-- **Request config**: centralized in `src/requestErrorConfig.ts` (error handler, interceptors, base URL). The `request` export in `app.tsx` sets global `RequestConfig`
+- **Request config**: centralized in `src/requestConfig.ts` (error handler, interceptors, base URL). The `request` export in `app.tsx` sets global `RequestConfig`
 - Built-in `request` function from `@umijs/max` — no manual axios wrapping needed
 - Production API: `https://pro-api.ant-design-demo.workers.dev`
 - Dev proxy config: `config/proxy.ts` (keyed by `UMI_ENV`)

@@ -266,7 +266,7 @@ export const request: RequestConfig = {
 };
 ```
 
-**错误处理** 位于 `src/requestErrorConfig.ts`，可自定义错误码映射和提示逻辑。
+**错误处理** 位于 `src/requestConfig.ts`，可自定义错误码映射和提示逻辑。
 
 **使用请求：**
 

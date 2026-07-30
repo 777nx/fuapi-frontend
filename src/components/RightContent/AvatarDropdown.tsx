@@ -10,6 +10,7 @@ import React from 'react';
 import { flushSync } from 'react-dom';
 import { outLogin } from '@/services/ant-design-pro/api';
 import HeaderDropdown from '../HeaderDropdown';
+import {userLogoutUsingPost} from "@/services/fuapi-backend/userController";
 
 export type GlobalHeaderRightProps = {
   children?: React.ReactNode;
@@ -41,7 +42,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
       flushSync(() => {
         setInitialState((s) => ({ ...s, currentUser: undefined }));
       });
-      loginOut();
+      userLogoutUsingPost();
       return;
     }
     if (key === 'theme') {
@@ -55,9 +56,9 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
     return <Spin size="small" />;
   }
 
-  const { currentUser } = initialState;
+  const { loginUser } = initialState;
 
-  if (!currentUser) {
+  if (!loginUser) {
     return <Spin size="small" />;
   }
 

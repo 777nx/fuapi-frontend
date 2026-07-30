@@ -20,3 +20,10 @@ declare module 'mockjs';
 declare const __APP_VERSION__: string;
 declare const __UMI_VERSION__: string;
 declare const __UTOO_VERSION__: string;
+
+/**
+ * 全局状态类型
+ */
+interface InitialState {
+  loginUser?: API.UserVO;
+}

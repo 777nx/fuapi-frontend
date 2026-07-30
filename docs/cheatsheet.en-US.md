@@ -266,7 +266,7 @@ export const request: RequestConfig = {
 };
 ```
 
-**Error handling** is in `src/requestErrorConfig.ts`, customize error code mapping and notification logic.
+**Error handling** is in `src/requestConfig.ts`, customize error code mapping and notification logic.
 
 **Using request:**
 

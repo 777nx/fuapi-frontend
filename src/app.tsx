@@ -1,5 +1,4 @@
 import { LinkOutlined } from '@ant-design/icons';
-import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
@@ -11,17 +10,12 @@ import React from 'react';
 dayjs.extend(relativeTime);
 
 import {
-  AvatarDropdown,
-  DocLink,
   ErrorBoundary,
   Footer,
-  LangDropdown,
   OfflineBanner,
-  VersionDropdown,
 } from '@/components';
-import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
-import defaultSettings from '../config/defaultSettings';
-import { errorConfig } from './requestErrorConfig';
+import { requestConfig } from './requestConfig';
+import {getLoginUserUsingGet} from "@/services/fuapi-backend/userController";
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -29,47 +23,23 @@ const loginPath = '/user/login';
 /**
  * @see https://umijs.org/docs/api/runtime-config#getinitialstate
  * */
-export async function getInitialState(): Promise<{
-  settings?: Partial<LayoutSettings>;
-  currentUser?: API.CurrentUser;
-  loading?: boolean;
-  fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
-  settingDrawerOpen?: boolean;
-}> {
-  const fetchUserInfo = async () => {
-    try {
-      const msg = await queryCurrentUser({
-        skipErrorHandler: true,
-      });
-      return msg.data;
-    } catch (_error) {
-      const { pathname, search, hash } = history.location;
-      history.replace(
-        `${loginPath}?redirect=${encodeURIComponent(pathname + search + hash)}`,
-      );
-    }
-    return undefined;
-  };
-  // 如果不是登录页面，执行
-  const { location } = history;
-  if (
-    ![loginPath, '/user/register', '/user/register-result'].includes(
-      location.pathname,
-    )
-  ) {
-    const currentUser = await fetchUserInfo();
-    return {
-      fetchUserInfo,
-      currentUser,
-      settings: defaultSettings as Partial<LayoutSettings>,
-      settingDrawerOpen: false,
-    };
+export async function getInitialState(): Promise<InitialState> {
+  // 当页面首次加载时，获取要全局保存的数据，比如用户登录信息
+  const state: InitialState = {
+    loginUser: undefined,
   }
-  return {
-    fetchUserInfo,
-    settings: defaultSettings as Partial<LayoutSettings>,
-    settingDrawerOpen: false,
-  };
+  try {
+    const res = await getLoginUserUsingGet();
+    if (res.data) {
+      state.loginUser = res.data;
+    }
+  } catch (_error) {
+    const {pathname, search, hash} = history.location;
+    history.replace(
+      `${loginPath}?redirect=${encodeURIComponent(pathname + search + hash)}`,
+    );
+  }
+  return state;
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
@@ -88,26 +58,14 @@ export const layout: RunTimeLayoutConfig = ({
       }
       return dom;
     },
-    actionsRender: () => [
-      <DocLink key="doc" />,
-      <VersionDropdown key="version" />,
-      <LangDropdown key="lang" />,
-    ],
-    avatarProps: {
-      src: initialState?.currentUser?.avatar,
-      title: 'ProUser',
-      render: (_, avatarChildren) => (
-        <AvatarDropdown>{avatarChildren}</AvatarDropdown>
-      ),
+    waterMarkProps: {
+      content: initialState?.loginUser?.userName,
     },
-    // waterMarkProps: {
-    //   content: initialState?.currentUser?.name,
-    // },
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
+      if (!initialState?.loginUser && location.pathname !== loginPath) {
         history.replace(
           `${loginPath}?redirect=${encodeURIComponent(location.pathname + location.search + location.hash)}`,
         );
@@ -156,14 +114,14 @@ export const layout: RunTimeLayoutConfig = ({
           <SettingDrawer
             disableUrlParams
             enableDarkTheme
-            collapse={initialState?.settingDrawerOpen}
+            // collapse={initialState?.settingDrawerOpen}
             onCollapseChange={(open) => {
               setInitialState((s) => ({
                 ...s,
                 settingDrawerOpen: open,
               }));
             }}
-            settings={initialState?.settings}
+            // settings={initialState?.settings}
             onSettingChange={(settings) => {
               setInitialState((s) => ({
                 ...s,
@@ -174,7 +132,7 @@ export const layout: RunTimeLayoutConfig = ({
         </>
       );
     },
-    ...initialState?.settings,
+    // ...initialState?.settings,
   };
 };
 
@@ -185,7 +143,7 @@ export const layout: RunTimeLayoutConfig = ({
  */
 export const request: RequestConfig = {
   baseURL: isDev ? '' : 'https://pro-api.ant-design-demo.workers.dev',
-  ...errorConfig,
+  ...requestConfig,
 };
 
 export function rootContainer(container: React.ReactNode) {
