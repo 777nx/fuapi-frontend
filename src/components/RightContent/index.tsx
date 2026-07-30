@@ -9,7 +9,7 @@ import { history } from '@umijs/max';
 import type { MenuProps } from 'antd';
 import { Button, Tooltip } from 'antd';
 import { createStyles } from 'antd-style';
-import React, { useMemo } from 'react';
+import React from 'react';
 import HeaderDropdown from '../HeaderDropdown';
 
 export const localeLabelMap: Record<string, { emoji: string; label: string }> =

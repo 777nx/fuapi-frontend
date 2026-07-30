@@ -4,21 +4,25 @@ export default [
     layout: false,
     routes: [
       {
-        name: '登录',
         path: '/user/login',
+        name: '登录',
         component: './user/login',
+      },
+      {
+        path: '/user',
+        redirect: '/user/login',
       },
     ],
   },
   {
     path: '/welcome',
     name: '欢迎',
-    icon: 'smile',
+    icon: 'home',
     component: './Welcome',
   },
   {
     path: '/admin',
-    name: '管理页',
+    name: '管理员',
     icon: 'crown',
     access: 'canAdmin',
     routes: [
@@ -28,24 +32,34 @@ export default [
       },
       {
         path: '/admin/sub-page',
-        name: '二级管理页',
+        name: 'sub-page',
         component: './Admin',
       },
     ],
   },
   {
-    name: '查询表格',
-    icon: 'table',
     path: '/list',
-    component: './table-list',
+    name: '列表页',
+    icon: 'table',
+    routes: [
+      {
+        path: '/list',
+        redirect: '/list/table-list',
+      },
+      {
+        path: '/list/table-list',
+        name: 'table-list',
+        icon: 'table',
+        component: './table-list',
+      },
+    ],
   },
   {
     path: '/',
     redirect: '/welcome',
   },
   {
-    component: './exception/404',
-    layout: false,
-    path: './*',
+    path: '/*',
+    redirect: '/welcome',
   },
 ];

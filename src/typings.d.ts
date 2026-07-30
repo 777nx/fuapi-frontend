@@ -26,4 +26,9 @@ declare const __UTOO_VERSION__: string;
  */
 interface InitialState {
   loginUser?: API.UserVO;
+  settings?: {
+    navTheme?: string;
+    [key: string]: unknown;
+  };
+  settingDrawerOpen?: boolean;
 }

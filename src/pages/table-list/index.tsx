@@ -10,7 +10,6 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import { useMutation } from '@tanstack/react-query';
-import { useIntl } from '@umijs/max';
 
 import { Button, Drawer, type FormInstance, Input, message } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
@@ -24,12 +23,6 @@ const TableList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
-
-  /**
-   * @en-US International configuration
-   * @zh-CN 国际化配置
-   * */
-  const intl = useIntl();
 
   const [messageApi, contextHolder] = message.useMessage();
 

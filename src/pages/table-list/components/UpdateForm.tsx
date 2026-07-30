@@ -7,7 +7,6 @@ import {
   StepsForm,
 } from '@ant-design/pro-components';
 import { useMutation } from '@tanstack/react-query';
-import { useIntl } from '@umijs/max';
 
 import { Modal, message } from 'antd';
 import React, { cloneElement, useCallback, useState } from 'react';
@@ -29,8 +28,6 @@ export type UpdateFormProps = {
 
 const UpdateForm: React.FC<UpdateFormProps> = (props) => {
   const { onOk, values, trigger } = props;
-
-  const intl = useIntl();
 
   const [open, setOpen] = useState(false);
 

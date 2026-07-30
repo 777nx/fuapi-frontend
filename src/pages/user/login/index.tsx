@@ -12,7 +12,7 @@ import {
   ProFormCheckbox,
   ProFormText,
 } from '@ant-design/pro-components';
-import { Helmet, useIntl, useModel,  } from '@umijs/max';
+import { Helmet, useModel } from '@umijs/max';
 
 import { Alert, App, Tabs } from 'antd';
 import { createStyles } from 'antd-style';
@@ -97,12 +97,11 @@ const LoginMessage: React.FC<{
 };
 
 const Login: React.FC = () => {
-  const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
+  const [userLoginState] = useState<API.LoginResult>({});
   const [type, setType] = useState<string>('account');
-  const { initialState, setInitialState } = useModel('@@initialState');
+  const { setInitialState } = useModel('@@initialState');
   const { styles } = useStyles();
   const { message } = App.useApp();
-  const intl = useIntl();
 
   /**
    * Validate redirect URL to prevent open redirect attacks

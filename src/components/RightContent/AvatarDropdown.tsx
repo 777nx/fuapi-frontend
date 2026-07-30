@@ -1,6 +1,5 @@
 import {
   LogoutOutlined,
-  SettingOutlined,
   SkinOutlined,
 } from '@ant-design/icons';
 import { history, useModel } from '@umijs/max';
@@ -8,7 +7,6 @@ import type { MenuProps } from 'antd';
 import { Spin } from 'antd';
 import React from 'react';
 import { flushSync } from 'react-dom';
-import { outLogin } from '@/services/ant-design-pro/api';
 import HeaderDropdown from '../HeaderDropdown';
 import {userLogoutUsingPost} from "@/services/fuapi-backend/userController";
 
@@ -19,37 +17,22 @@ export type GlobalHeaderRightProps = {
 export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
   children,
 }) => {
-  const loginOut = async () => {
-    await outLogin();
-    const { search, pathname } = window.location;
-    const urlParams = new URL(window.location.href).searchParams;
-    const searchParams = new URLSearchParams({
-      redirect: pathname + search,
-    });
-    const redirect = urlParams.get('redirect');
-    if (window.location.pathname !== '/user/login' && !redirect) {
-      history.replace({
-        pathname: '/user/login',
-        search: searchParams.toString(),
-      });
-    }
-  };
   const { initialState, setInitialState } = useModel('@@initialState');
 
-  const onMenuClick: MenuProps['onClick'] = (event) => {
+  const onMenuClick: MenuProps['onClick'] = async (event) => {
     const { key } = event;
     if (key === 'logout') {
+      await userLogoutUsingPost();
       flushSync(() => {
-        setInitialState((s) => ({ ...s, currentUser: undefined }));
+        setInitialState((s) => ({ ...s, loginUser: undefined }));
       });
-      userLogoutUsingPost();
+      history.replace('/user/login');
       return;
     }
     if (key === 'theme') {
       setInitialState((s) => ({ ...s, settingDrawerOpen: true }));
       return;
     }
-    history.push(`/account/${key}`);
   };
 
   if (!initialState) {
@@ -63,11 +46,6 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
   }
 
   const menuItems: MenuProps['items'] = [
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: '个人设置',
-    },
     {
       key: 'theme',
       icon: <SkinOutlined />,

@@ -6,7 +6,6 @@ import {
   ProFormTextArea,
 } from '@ant-design/pro-components';
 import { useMutation } from '@tanstack/react-query';
-import { useIntl } from '@umijs/max';
 
 import { Button, message } from 'antd';
 import type { FC } from 'react';
@@ -20,11 +19,6 @@ const CreateForm: FC<CreateFormProps> = (props) => {
   const { reload } = props;
 
   const [messageApi, contextHolder] = message.useMessage();
-  /**
-   * @en-US International configuration
-   * @zh-CN 国际化配置
-   * */
-  const intl = useIntl();
 
   const { mutateAsync: run, isPending: loading } = useMutation({
     mutationFn: addRule,
