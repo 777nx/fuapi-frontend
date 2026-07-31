@@ -47,6 +47,9 @@ export const layout: RunTimeLayoutConfig = ({
   setInitialState,
 }) => {
   return {
+    menu: {
+      locale: false,
+    },
     menuItemRender: (item, dom) => {
       if (item.path) {
         return (
@@ -57,9 +60,9 @@ export const layout: RunTimeLayoutConfig = ({
       }
       return dom;
     },
-    waterMarkProps: {
-      content: initialState?.loginUser?.userName,
-    },
+    waterMarkProps: initialState?.loginUser?.userName
+      ? { content: initialState.loginUser.userName }
+      : undefined,
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
