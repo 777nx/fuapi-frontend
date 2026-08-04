@@ -28,66 +28,6 @@ interface ResponseStructure {
 export const requestConfig: RequestConfig = {
   baseURL: "http://localhost:7529",
   withCredentials: true,
-  // 错误处理： umi@3 的错误处理方案。
-  errorConfig: {
-    // 错误抛出
-    errorThrower: (res) => {
-      const { success, data, errorCode, errorMessage, showType } =
-        res as unknown as ResponseStructure;
-      if (!success) {
-        const error: any = new Error(errorMessage);
-        error.name = 'BizError';
-        error.info = { errorCode, errorMessage, showType, data };
-        throw error; // 抛出自制的错误
-      }
-    },
-    // 错误接收及处理
-    errorHandler: (error: any, opts: any) => {
-      if (opts?.skipErrorHandler) throw error;
-      // 我们的 errorThrower 抛出的错误。
-      if (error.name === 'BizError') {
-        const errorInfo: ResponseStructure | undefined = error.info;
-        if (errorInfo) {
-          const { errorMessage, errorCode } = errorInfo;
-          switch (errorInfo.showType) {
-            case ErrorShowType.SILENT:
-              // do nothing
-              break;
-            case ErrorShowType.WARN_MESSAGE:
-              message.warning(errorMessage);
-              break;
-            case ErrorShowType.ERROR_MESSAGE:
-              message.error(errorMessage);
-              break;
-            case ErrorShowType.NOTIFICATION:
-              notification.open({
-                title: errorCode,
-                description: errorMessage,
-              });
-              break;
-            case ErrorShowType.REDIRECT:
-              window.location.href = '/user/login';
-              break;
-            default:
-              message.error(errorMessage);
-          }
-        }
-      } else if (error.response) {
-        // Axios 的错误
-        // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
-        message.error(`Response status:${error.response.status}`);
-      } else if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        message.error(
-          '网络不可用，请检查网络连接后重试。',
-        );
-      } else if (error.request) {
-        message.error('None response! Please retry.');
-      } else {
-        message.error('Request error, please retry.');
-      }
-    },
-  },
-
   // 请求拦截器
   requestInterceptors: [
     (config: RequestOptions) => {
@@ -98,5 +38,14 @@ export const requestConfig: RequestConfig = {
   ],
 
   // 响应拦截器
-  responseInterceptors: [],
+  responseInterceptors: [
+    // 拦截响应数据，进行个性化处理
+    (response) => {
+      const { data } = response as unknown as ResponseStructure;
+      if (data.code !== 0) {
+        throw new Error(data.message);
+      }
+      return response;
+    }
+  ],
 };

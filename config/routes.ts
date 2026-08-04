@@ -1,6 +1,6 @@
 /**
  * @name umi 的路由配置
- * @description 菜单仅保留欢迎页、管理员、列表页下的 table-list。
+ * @description 菜单仅保留欢迎页、管理员、列表页下的 InterfaceInfo。
  */
 export default [
   {
@@ -18,12 +18,12 @@ export default [
       },
     ],
   },
-  {
-    path: '/welcome',
-    name: '欢迎',
-    icon: 'home',
-    component: './Welcome',
-  },
+  // {
+  //   path: '/welcome',
+  //   name: '欢迎',
+  //   icon: 'home',
+  //   component: './Welcome',
+  // },
   {
     path: '/admin',
     name: '管理员',
@@ -32,38 +32,23 @@ export default [
     routes: [
       {
         path: '/admin',
-        redirect: '/admin/sub-page',
+        redirect: '/admin/interface',
       },
       {
-        path: '/admin/sub-page',
-        name: 'sub-page',
-        component: './Admin',
-      },
-    ],
-  },
-  {
-    path: '/list',
-    name: '列表页',
-    icon: 'table',
-    routes: [
-      {
-        path: '/list',
-        redirect: '/list/table-list',
-      },
-      {
-        path: '/list/table-list',
-        name: 'table-list',
+        path: '/admin/interface_info',
+        name: '接口管理',
         icon: 'table',
-        component: './table-list',
+        component: './InterfaceInfo',
       },
     ],
   },
-  {
-    path: '/',
-    redirect: '/welcome',
-  },
+  // {
+  //   path: '/',
+  //   redirect: '/welcome',
+  // },
   {
     path: '/*',
-    redirect: '/welcome',
+    layout: false,
+    redirect: '/404',
   },
 ];

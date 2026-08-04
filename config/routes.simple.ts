@@ -44,13 +44,13 @@ export default [
     routes: [
       {
         path: '/list',
-        redirect: '/list/table-list',
+        redirect: '/list/InterfaceInfo',
       },
       {
-        path: '/list/table-list',
-        name: 'table-list',
+        path: '/list/InterfaceInfo',
+        name: 'InterfaceInfo',
         icon: 'table',
-        component: './table-list',
+        component: './InterfaceInfo',
       },
     ],
   },

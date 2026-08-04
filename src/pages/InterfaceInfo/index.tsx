@@ -9,15 +9,17 @@ import {
   ProDescriptions,
   ProTable,
 } from '@ant-design/pro-components';
-import { useMutation } from '@tanstack/react-query';
-import { Button, Drawer, message } from 'antd';
+import { Button, Drawer, message, Modal, Popconfirm } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
-import { removeRule } from '@/services/ant-design-pro/api';
-import { listInterfaceInfoByPageUsingGet } from '@/services/fuapi-backend/interfaceInfoController';
+import {
+  deleteInterfaceInfoUsingPost,
+  listInterfaceInfoByPageUsingGet,
+} from '@/services/fuapi-backend/interfaceInfoController';
 import CreateForm from './components/CreateForm';
 import UpdateForm from './components/UpdateForm';
 
 const TableList: React.FC = () => {
+  const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const actionRef = useRef<ActionType | null>(null);
 
   const [showDetail, setShowDetail] = useState<boolean>(false);
@@ -25,21 +27,64 @@ const TableList: React.FC = () => {
   const [selectedRowsState, setSelectedRows] = useState<API.InterfaceInfo[]>(
     [],
   );
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [messageApi, contextHolder] = message.useMessage();
 
-  const { mutate: delRun, isPending: loading } = useMutation({
-    mutationFn: removeRule,
-    onSuccess: () => {
-      setSelectedRows([]);
-      actionRef.current?.reloadAndRest?.();
+  const handleDelete = useCallback(
+    async (id?: number) => {
+      if (!id) {
+        messageApi.warning('接口 id 不存在');
+        return false;
+      }
+      const res = await deleteInterfaceInfoUsingPost({ id });
+      if (res?.data) {
+        messageApi.success('删除成功');
+        actionRef.current?.reload();
+        return true;
+      }
+      messageApi.error(res?.message ?? '删除失败，请重试');
+      return false;
+    },
+    [messageApi],
+  );
 
-      messageApi.success('Deleted successfully and will refresh soon');
-    },
-    onError: () => {
-      messageApi.error('Delete failed, please try again');
-    },
-  });
+  /**
+   * 批量删除
+   */
+  const handleBatchRemove = useCallback(async () => {
+    if (!selectedRowsState?.length) {
+      messageApi.warning('请选择删除项');
+      return;
+    }
+
+    Modal.confirm({
+      title: '确认删除',
+      content: `确定删除选中的 ${selectedRowsState.length} 个接口吗？`,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        setDeleteLoading(true);
+        try {
+          const results = await Promise.all(
+            selectedRowsState.map((row) =>
+              deleteInterfaceInfoUsingPost({ id: row.id }),
+            ),
+          );
+          const successCount = results.filter((res) => res?.data).length;
+          if (successCount > 0) {
+            messageApi.success(`成功删除 ${successCount} 条`);
+            setSelectedRows([]);
+            actionRef.current?.reloadAndRest?.();
+          } else {
+            messageApi.error('删除失败，请重试');
+          }
+        } finally {
+          setDeleteLoading(false);
+        }
+      },
+    });
+  }, [messageApi, selectedRowsState]);
 
   const columns: ProColumns<API.InterfaceInfo>[] = [
     {
@@ -47,11 +92,15 @@ const TableList: React.FC = () => {
       dataIndex: 'id',
       valueType: 'text',
       search: false,
+      hideInForm: true,
     },
     {
       title: '接口名称',
       dataIndex: 'name',
       valueType: 'text',
+      formItemProps: {
+        rules: [{ required: true, message: '请输入接口名称' }],
+      },
     },
     {
       title: '描述',
@@ -62,11 +111,17 @@ const TableList: React.FC = () => {
       title: '请求方法',
       dataIndex: 'method',
       valueType: 'text',
+      formItemProps: {
+        rules: [{ required: true, message: '请输入请求方法' }],
+      },
     },
     {
       title: 'url',
       dataIndex: 'url',
       valueType: 'text',
+      formItemProps: {
+        rules: [{ required: true, message: '请输入 url' }],
+      },
     },
     {
       title: '请求头',
@@ -100,12 +155,14 @@ const TableList: React.FC = () => {
       dataIndex: 'createTime',
       valueType: 'dateTime',
       search: false,
+      hideInForm: true,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
       search: false,
+      hideInForm: true,
     },
     {
       title: '操作',
@@ -113,44 +170,24 @@ const TableList: React.FC = () => {
       valueType: 'option',
       render: (_, record) => [
         <UpdateForm
-          trigger={
-            <a>
-              配置
-            </a>
-          }
+          trigger={<a>修改</a>}
           key="config"
           onOk={actionRef.current?.reload}
           values={record}
+          columns={columns}
         />,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          订阅警报
-        </a>,
+        <Popconfirm
+          key="delete"
+          title="确定删除该接口吗？"
+          okText="确认"
+          cancelText="取消"
+          onConfirm={() => handleDelete(record.id)}
+        >
+          <a style={{ color: 'red' }}>删除</a>
+        </Popconfirm>,
       ],
     },
   ];
-
-  /**
-   *  Delete node
-   * @zh-CN 删除节点
-   *
-   * @param selectedRows
-   */
-  const handleRemove = useCallback(
-    async (selectedRows: API.InterfaceInfo[]) => {
-      if (!selectedRows?.length) {
-        messageApi.warning('请选择删除项');
-
-        return;
-      }
-
-      await delRun({
-        data: {
-          key: selectedRows.map((row) => row.id),
-        },
-      });
-    },
-    [delRun, messageApi.warning],
-  );
 
   return (
     <PageContainer>
@@ -163,7 +200,13 @@ const TableList: React.FC = () => {
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          <CreateForm key="create" reload={actionRef.current?.reload} />,
+          <Button
+            type="primary"
+            key="primary"
+            onClick={() => handleModalVisible(true)}
+          >
+            新建
+          </Button>,
         ]}
         request={async (params) => {
           const res = await listInterfaceInfoByPageUsingGet({
@@ -192,14 +235,14 @@ const TableList: React.FC = () => {
           }
         >
           <Button
-            loading={loading}
+            danger
+            loading={deleteLoading}
             onClick={() => {
-              handleRemove(selectedRowsState);
+              handleBatchRemove();
             }}
           >
             批量删除
           </Button>
-          <Button type="primary">批量审批</Button>
         </FooterToolbar>
       )}
 
@@ -226,6 +269,12 @@ const TableList: React.FC = () => {
           />
         )}
       </Drawer>
+      <CreateForm
+        columns={columns}
+        visible={createModalVisible}
+        onCancel={() => handleModalVisible(false)}
+        reload={() => actionRef.current?.reload()}
+      />
     </PageContainer>
   );
 };
