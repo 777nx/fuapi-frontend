@@ -14,9 +14,17 @@ import React, { useCallback, useRef, useState } from 'react';
 import {
   deleteInterfaceInfoUsingPost,
   listInterfaceInfoByPageUsingGet,
+  offlineInterfaceInfoUsingPost,
+  onlineInterfaceInfoUsingPost,
 } from '@/services/fuapi-backend/interfaceInfoController';
 import CreateForm from './components/CreateForm';
 import UpdateForm from './components/UpdateForm';
+
+/** 接口状态：0 关闭，1 运行中 */
+const INTERFACE_STATUS = {
+  OFFLINE: 0,
+  ONLINE: 1,
+} as const;
 
 const TableList: React.FC = () => {
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
@@ -45,6 +53,40 @@ const TableList: React.FC = () => {
       }
       messageApi.error(res?.message ?? '删除失败，请重试');
       return false;
+    },
+    [messageApi],
+  );
+
+  const handleOnline = useCallback(
+    async (id?: number) => {
+      if (!id) {
+        messageApi.warning('接口 id 不存在');
+        return;
+      }
+      const res = await onlineInterfaceInfoUsingPost({ id });
+      if (res?.data) {
+        messageApi.success('发布成功');
+        actionRef.current?.reload();
+        return;
+      }
+      messageApi.error(res?.message ?? '发布失败，请重试');
+    },
+    [messageApi],
+  );
+
+  const handleOffline = useCallback(
+    async (id?: number) => {
+      if (!id) {
+        messageApi.warning('接口 id 不存在');
+        return;
+      }
+      const res = await offlineInterfaceInfoUsingPost({ id });
+      if (res?.data) {
+        messageApi.success('下线成功');
+        actionRef.current?.reload();
+        return;
+      }
+      messageApi.error(res?.message ?? '下线失败，请重试');
     },
     [messageApi],
   );
@@ -176,6 +218,15 @@ const TableList: React.FC = () => {
           values={record}
           columns={columns}
         />,
+        record.status === INTERFACE_STATUS.OFFLINE ? (
+          <a key="online" onClick={() => handleOnline(record.id)}>
+            发布
+          </a>
+        ) : (
+          <a key="offline" onClick={() => handleOffline(record.id)}>
+            下线
+          </a>
+        ),
         <Popconfirm
           key="delete"
           title="确定删除该接口吗？"
