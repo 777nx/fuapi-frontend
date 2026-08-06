@@ -21,8 +21,8 @@ const pageDirsToDelete = [
   'src/pages/profile',
   'src/pages/result',
   'src/pages/account',
-  'src/pages/user/register',
-  'src/pages/user/register-result',
+  'src/pages/User/register',
+  'src/pages/User/register-result',
 ];
 
 // 需要删除的 mock 文件

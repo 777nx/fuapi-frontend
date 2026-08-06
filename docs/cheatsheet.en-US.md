@@ -106,7 +106,7 @@ export default [
     path: '/welcome',
     name: 'welcome',     // maps to menu.welcome i18n key
     icon: 'home',
-    component: './Welcome',
+    component: './Index',
   },
   {
     path: '/admin',

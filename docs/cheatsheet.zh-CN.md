@@ -106,7 +106,7 @@ export default [
     path: '/welcome',
     name: 'welcome',     // 对应 menu.welcome 国际化 key
     icon: 'home',
-    component: './Welcome',
+    component: './Index',
   },
   {
     path: '/admin',

@@ -6,7 +6,7 @@ export default [
       {
         path: '/user/login',
         name: '登录',
-        component: './user/login',
+        component: './User/login',
       },
       {
         path: '/user',
@@ -18,7 +18,7 @@ export default [
     path: '/welcome',
     name: '欢迎',
     icon: 'home',
-    component: './Welcome',
+    component: './Index',
   },
   {
     path: '/admin',

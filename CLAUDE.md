@@ -32,7 +32,7 @@ npm run tsc            # Type check only (tsc --noEmit)
 npm run test              # Run all Jest tests
 npm run test:coverage     # Jest with coverage
 npm run test:update       # Update test snapshots
-# Run a single test: npx jest src/pages/user/login/login.test.tsx
+# Run a single test: npx jest src/pages/User/login/login.test.tsx
 
 # Code Generation
 npm run openapi    # Regenerate services from config/oneapi.json (overwrites src/services/)
@@ -45,7 +45,7 @@ npm run record     # Record request data for mock replay
 
 ## Documentation
 
-- `docs/cheatsheet.zh-CN.md` / `docs/cheatsheet.en-US.md` — comprehensive cheatsheet covering routes, layout, data flow, requests, permissions, i18n, styling, and testing with code examples. Rendered in the Welcome page via `@ant-design/x-markdown`.
+- `docs/cheatsheet.zh-CN.md` / `docs/cheatsheet.en-US.md` — comprehensive cheatsheet covering routes, layout, data flow, requests, permissions, i18n, styling, and testing with code examples. Rendered in the Index page via `@ant-design/x-markdown`.
 
 ## Architecture
 
@@ -144,7 +144,7 @@ The CLI also supports MCP server mode: `npx antd mcp` (for IDE integrations).
 - **Commit messages**: must follow conventional commits (`commitlint` with `@commitlint/config-conventional`).
 - **TypeScript strict mode** enabled. Path aliases: `@/*` → `./src/*`, `@@/*` → `./src/.umi/*`.
 - **Node >= 20** required.
-- **Markdown as raw strings**: `config/md-raw-loader.cjs` lets `.md` files be imported as strings (used in Welcome/cheatsheet pages with `@ant-design/x-markdown`).
+- **Markdown as raw strings**: `config/md-raw-loader.cjs` lets `.md` files be imported as strings (used in Index/cheatsheet pages with `@ant-design/x-markdown`).
 - **Auto-generated code in `src/services/`** is excluded from Biome linting
 - **Adding a new page**: 1) Create component in `src/pages/` 2) Add route in `config/routes.ts` 3) Add menu translation in `src/locales/` (route `name` maps to `menu.xxx` i18n key)
 - **Adding global state**: Create a file in `src/models/` exporting a custom Hook, use `useModel('filename')` in components
